@@ -1,41 +1,138 @@
-<!doctype html>
-<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8">
-    <meta name="referrer" content="never" />
-    <title>Vue.js Poster Shop</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" type="image/x-icon" href="/public/favicon.ico">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,600,700,800" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Baloo+Bhaina" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="/public/style.css">
-</head>
-<body>
-<div id="app">
-    <div class="header">
-        <div class="container">
-            <div class="title">
-                <img src="public/logo.png">
-                <h1>Vue.js Poster Shop</h1>
-            </div>
-        </div>
-    </div>
-    <div class="main container">
-        <div class="products">
-            <p>Products go here.</p>
-        </div>
-        <div class="cart">
-            <h2>Shopping Cart</h2>
-            <div>
-                Total: $0.00
-            </div>
-        </div>
-    </div>
-</div>
+<!DOCTYPE html>
+<html
+	lang="en"
+	xmlns:v-on="http://www.w3.org/1999/xhtml"
+	xmlns:v-bind="http://www.w3.org/1999/xhtml"
+>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="referrer" content="never" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<!-- Scripts -->
-<script src="/reload/reload.js"></script>
-<script type="text/javascript" src="public/script.js"></script>
+		<title>Vue.js Poster Shop</title>
 
-</body>
+		<link
+			rel="shortcut icon"
+			type="image/x-icon"
+			href="/public/favicon.ico"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,600,700,800"
+			rel="stylesheet"
+			type="text/css"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css?family=Baloo+Bhaina"
+			rel="stylesheet"
+		/>
+
+		<link rel="stylesheet" type="text/css" href="/public/style.css" />
+	</head>
+	<body>
+		<div id="app" v-cloak>
+			<div id="loading">Loading...</div>
+			<div class="header">
+				<div class="container">
+					<div class="title">
+						<img src="public/logo.png" />
+						<h1>Vue.js Poster Shop</h1>
+					</div>
+					<form class="search-bar" @submit.prevent="onSearch">
+						<input
+							type="text"
+							placeholder="Search for posters"
+							v-model="searchText"
+							required
+						/>
+						<input type="submit" value="Search" class="btn" />
+					</form>
+					<p>
+						Try search terms such as
+						<em>cat, dog, flower, etc..</em>
+					</p>
+				</div>
+			</div>
+			<div class="main container">
+				<div class="products">
+					<p v-if="isLoading">Loading...</p>
+					<p v-else>
+						Found {{ results.length }} results for the search term
+						<em>{{ lastSearchText }}</em>
+					</p>
+					<div
+						class="product"
+						v-for="product in products"
+						:key="product.id"
+					>
+						<div>
+							<div class="product-image">
+								<img
+									:src="product.thumb"
+									:alt="product.title"
+								/>
+							</div>
+						</div>
+						<div>
+							<h4 class="product-title">{{ product.title }}</h4>
+							<p class="product-price">
+								{{ product.price | currency }}
+							</p>
+							<button
+								class="add-to-cart btn"
+								@click="addToCart(product)"
+							>
+								Add to cart
+							</button>
+						</div>
+					</div>
+					<div
+						id="product-list-bottom"
+						v-show="products.length === results.length && results.length > 0"
+					>
+						No more items
+					</div>
+				</div>
+				<div class="cart">
+					<h2>Shopping Cart</h2>
+					<transition name="fade">
+						<div class="empty-cart" v-if="cart.length === 0">
+							No items in the cart
+						</div>
+					</transition>
+					<transition-group name="fade" tag="ul">
+						<li
+							class="cart-item"
+							v-for="item in cart"
+							:key="item.id"
+						>
+							<div class="item-title">{{ item.title }}</div>
+							<span class="item-qty"
+								>{{ item.price | currency }} x {{ item.qty
+								}}</span
+							>
+
+							<button class="btn" @click="incrementQty(item)">
+								+
+							</button>
+							<button class="btn" @click="decrementQty(item)">
+								-
+							</button>
+						</li>
+					</transition-group>
+					<transition name="fade">
+						<div class="cart-total" v-if="cart.length">
+							<div>Total: {{ totalPrice | currency }}</div>
+						</div>
+					</transition>
+				</div>
+			</div>
+		</div>
+
+		<!-- Scripts -->
+		<script src="/reload/reload.js"></script>
+		<script src="node_modules/vue/dist/vue.js"></script>
+		<script src="node_modules/vue-resource/dist/vue-resource.js"></script>
+		<script src="node_modules/scrollmonitor/scrollMonitor.js"></script>
+		<script type="text/javascript" src="public/script.js"></script>
+	</body>
 </html>
